@@ -1,0 +1,76 @@
+---
+name: Docker Ansible CI images
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 1"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2.9"
+          - "2.10"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test building image
+        run: docker build -t ${{ env.IMAGE_NAME }}:${{ matrix.version }} . --build-arg ANSIBLE_VERSION=${{ matrix.version }}.*
+
+      - name: Run the built image
+        run: docker run --name test-container --rm -it -d ${{ env.IMAGE_NAME }}:${{ matrix.version }} bash
+
+      - name: Verify the built image
+        run: docker exec --tty test-container env TERM=xterm ansible --version
+
+  build-and-push-image:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2.9"
+          - "2.10"
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1.10.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3.4.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2.6.1
+        with:
+          context: ./
+          file: Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: ANSIBLE_VERSION=${{ matrix.version }}.*
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.version }}
+          labels: ${{ steps.meta.outputs.labels }}
