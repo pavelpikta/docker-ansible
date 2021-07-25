@@ -1,49 +1,39 @@
-FROM ubuntu:20.04
-
-LABEL "maintainer"="Pavel Pikta <pikta.pavel@gmail.com>"
-
-ENV container=docker \
-  LANGUAGE=en_US.UTF-8 \
-  LANG=en_US.UTF-8 \
-  LC_ALL=en_US.UTF-8 \
-  TERM=xterm \
-  DEBIAN_FRONTEND="noninteractive"
+FROM python:3.8-alpine3.13 AS builder
 
 ARG ANSIBLE_VERSION
 
-RUN apt-get update && \
-  apt-get install -y \
-  build-essential \
-  git \
-  openssh-client \
-  locales \
+RUN set -eux \
+  && apk add --update --no-cache \
+  gcc \
+  libc-dev \
   libffi-dev \
-  libssl-dev \
-  libyaml-dev \
-  python3 \
-  python3-dev \
-  python3-setuptools \
-  python3-pip \
-  python3-yaml && \
-  apt-get clean
-
-RUN locale-gen en_US.UTF-8
-
-RUN /usr/bin/python3 -m pip install --no-cache setuptools wheel
-
-RUN /usr/bin/python3 -m pip install --no-cache ansible==${ANSIBLE_VERSION} \
-  yamllint \
+  make \
+  musl-dev \
+  openssl-dev \
+  rust \
+  cargo && \
+  pip install --no-cache-dir \
+  ansible==${ANSIBLE_VERSION} \
   ansible-lint \
   molecule \
-  molecule-docker
+  molecule-docker \
+  jmespath \
+  yamllint
+
+FROM python:3.8-alpine3.13
+
+LABEL "maintainer"="Pavel Pikta <pikta.pavel@gmail.com>"
+
+RUN set -eux \
+  && apk add --update --no-cache \
+  docker \
+  git \
+  openssh-client \
+  && rm -rf /root/.cache
+
+COPY --from=builder /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
+COPY --from=builder /usr/local/bin/ansible* /usr/local/bin/
+COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
+COPY --from=builder /usr/local/bin/yamllint  /usr/local/bin/yamllint
 
 RUN ansible-galaxy collection install community.molecule
-
-RUN apt-get install -y \
-  apt-transport-https \
-  ca-certificates \
-  curl \
-  gnupg && \
-  apt-get clean
-
-RUN apt-get install -y docker.io && apt-get clean
