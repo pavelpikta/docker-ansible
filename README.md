@@ -1,6 +1,6 @@
 # docker-ansible-ci
 
-[![Docker Ansible CI images](https://github.com/pavelpikta/docker-ansible-ci/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/pavelpikta/docker-ansible-ci/actions/workflows/main.yml)
+[![Docker Ansible CI images](https://github.com/pavelpikta/docker-ansible-ci/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pavelpikta/docker-ansible-ci/actions/workflows/ci.yml)
 
 Dockerfile for building ansible executor image
 
