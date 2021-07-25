@@ -28,7 +28,7 @@ jobs:
         run: docker build -t ${{ env.IMAGE_NAME }}:${{ matrix.version }} . --build-arg ANSIBLE_VERSION=${{ matrix.version }}.*
 
       - name: Run the built image
-        run: docker run --name test-container --rm -it -d ${{ env.IMAGE_NAME }}:${{ matrix.version }} bash
+        run: docker run --name test-container --rm -it -d ${{ env.IMAGE_NAME }}:${{ matrix.version }} sh
 
       - name: Verify the built image
         run: docker exec --tty test-container env TERM=xterm ansible --version

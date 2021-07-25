@@ -36,7 +36,4 @@ COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
 COPY --from=builder /usr/local/bin/yamllint /usr/local/bin/yamllint
 COPY --from=builder /usr/local/bin/ansible* /usr/local/bin/
 
-RUN ansible-galaxy collection install community.molecule && \
-  ansible --version && \
-  ansible-lint --version && \
-  molecule --version
+RUN ansible-galaxy collection install community.molecule
