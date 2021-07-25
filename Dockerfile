@@ -1,6 +1,6 @@
 FROM python:3.8-alpine3.13 AS builder
 
-# ARG ANSIBLE_VERSION
+ARG ANSIBLE_VERSION
 
 RUN set -eux \
   && apk add --update --no-cache \
