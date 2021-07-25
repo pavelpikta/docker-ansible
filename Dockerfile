@@ -32,8 +32,8 @@ RUN set -eux \
   && rm -rf /root/.cache
 
 COPY --from=builder /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
-COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
-COPY --from=builder /usr/local/bin/yamllint /usr/local/bin/yamllint
 COPY --from=builder /usr/local/bin/ansible* /usr/local/bin/
+COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
+COPY --from=builder /usr/local/bin/yamllint  /usr/local/bin/yamllint
 
 RUN ansible-galaxy collection install community.molecule
