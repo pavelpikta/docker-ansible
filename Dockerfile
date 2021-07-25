@@ -1,6 +1,6 @@
 FROM python:3.8-alpine3.13 AS builder
 
-ARG ANSIBLE_VERSION
+ARG ANSIBLE_PKG=ansible
 
 RUN set -eux \
   && apk add --update --no-cache \
@@ -13,7 +13,7 @@ RUN set -eux \
   rust \
   cargo && \
   pip install --no-cache-dir \
-  ansible==${ANSIBLE_VERSION} \
+  ${ANSIBLE_PKG} \
   ansible-lint \
   molecule \
   molecule-docker \
