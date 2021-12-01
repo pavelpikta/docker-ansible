@@ -29,6 +29,12 @@ jobs:
             package: "ansible==2.9.*"
           - ansible-version: "2.10"
             package: "ansible==2.10.*"
+          - ansible-version: "3"
+            package: "ansible==3.*"
+          - ansible-version: "4"
+            package: "ansible==4.*"
+          - ansible-version: "5"
+            package: "ansible==5.*"
 
     steps:
       - name: Checkout repository
