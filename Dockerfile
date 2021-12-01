@@ -22,7 +22,7 @@ RUN set -eux \
 
 FROM python:3.8-alpine3.13
 
-LABEL "maintainer"="Pavel Pikta <pikta.pavel@gmail.com>"
+LABEL "maintainer"="Pavel Pikta <pavel_pikta@outlook.com>"
 
 RUN set -eux \
   && apk add --update --no-cache \
@@ -35,5 +35,3 @@ COPY --from=builder /usr/local/lib/python3.8/site-packages/ /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/ansible* /usr/local/bin/
 COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
 COPY --from=builder /usr/local/bin/yamllint  /usr/local/bin/yamllint
-
-RUN ansible-galaxy collection install community.molecule
