@@ -13,9 +13,20 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
   build:
     name: Ansible version - ${{ matrix.ansible-version }}
     runs-on: ubuntu-latest
+    needs: ["lint"]
     permissions:
       contents: read
       packages: write
