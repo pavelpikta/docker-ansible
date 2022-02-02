@@ -1,4 +1,4 @@
-FROM python:3.8-alpine3.13 AS builder
+FROM python:3.8-alpine3.15 AS builder
 
 ARG ANSIBLE_PKG=ansible
 
@@ -20,7 +20,7 @@ RUN set -eux \
   jmespath \
   yamllint
 
-FROM python:3.8-alpine3.13
+FROM python:3.8-alpine3.15
 
 LABEL "maintainer"="Pavel Pikta <pavel_pikta@outlook.com>"
 
