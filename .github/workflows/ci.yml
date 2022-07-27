@@ -40,6 +40,11 @@ jobs:
             ansible-core-version: "2.13.2"
             ansible-version: "6.1.0"
             ansible-lint: "6.3.0"
+          - version: "2.12"
+            image: "alpine-3.16"
+            ansible-core-version: "2.12.7"
+            ansible-version: "5.10.0"
+            ansible-lint: "6.3.0"
 
     steps:
       - name: Checkout repository
