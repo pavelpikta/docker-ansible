@@ -69,8 +69,8 @@ jobs:
           pull: true
           push: true
           build-args: >
-            ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
-            ANSIBLE_VERSION=${{ matrix.ansible-version }}
-            ANSIBLE_LINT=${{ matrix.ansible-lint }}
+            ANSIBLE_CORE_VERSION==${{ matrix.ansible-core-version }}
+            ANSIBLE_VERSION==${{ matrix.ansible-version }}
+            ANSIBLE_LINT==${{ matrix.ansible-lint }}
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.version }}-${{ matrix.image }}
           labels: ${{ steps.meta.outputs.labels }}
