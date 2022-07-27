@@ -1,37 +1,40 @@
-FROM python:3.8-alpine3.15 AS builder
+FROM alpine:3.16
 
-ARG ANSIBLE_PKG=ansible
-
-RUN set -eux \
-  && apk add --update --no-cache \
-  gcc \
-  libc-dev \
-  libffi-dev \
-  make \
-  musl-dev \
-  openssl-dev \
-  rust \
-  cargo && \
-  pip install --no-cache-dir \
-  ${ANSIBLE_PKG} \
-  ansible-lint \
-  molecule \
-  molecule-docker \
-  jmespath \
-  yamllint
-
-FROM python:3.8-alpine3.15
+ARG ANSIBLE_CORE_VERSION "2.13.2"
+ARG ANSIBLE_VERSION "6.1.0"
+ARG ANSIBLE_LINT "6.3.0"
+ENV ANSIBLE_CORE_VERSION ${ANSIBLE_CORE_VERSION}
+ENV ANSIBLE_VERSION ${ANSIBLE_VERSION}
+ENV ANSIBLE_LINT ${ANSIBLE_LINT}
 
 LABEL "maintainer"="Pavel Pikta <pavel_pikta@outlook.com>"
 
-RUN set -eux \
-  && apk add --update --no-cache \
-  docker \
-  git \
+RUN apk --no-cache add \
+  sudo \
+  python3\
+  py3-pip \
+  openssl \
+  ca-certificates \
+  sshpass \
   openssh-client \
-  && rm -rf /root/.cache
-
-COPY --from=builder /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
-COPY --from=builder /usr/local/bin/ansible* /usr/local/bin/
-COPY --from=builder /usr/local/bin/molecule /usr/local/bin/molecule
-COPY --from=builder /usr/local/bin/yamllint  /usr/local/bin/yamllint
+  rsync \
+  git \
+  docker && \
+  apk --no-cache add --virtual build-dependencies \
+  python3-dev \
+  libffi-dev \
+  musl-dev \
+  gcc \
+  cargo \
+  openssl-dev \
+  libressl-dev \
+  build-base && \
+  pip3 install --upgrade pip wheel && \
+  pip3 install --upgrade cryptography cffi && \
+  pip3 install ansible-core==${ANSIBLE_CORE_VERSION} && \
+  pip3 install ansible==${ANSIBLE_VERSION} ansible-lint==${ANSIBLE_LINT} yamllint && \
+  pip3 install molecule molecule-containers molecule-docker molecule-podman molecule-ec2 && \
+  apk del build-dependencies && \
+  rm -rf /var/cache/apk/* && \
+  rm -rf /root/.cache/pip && \
+  rm -rf /root/.cargo
