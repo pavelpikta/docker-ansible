@@ -38,7 +38,7 @@ jobs:
       matrix:
         include:
           - version: "2.13"
-            image: "alpine-3.16"
+            image: [alpine-3.16, alpine-3.15]
             ansible-core-version: "2.13.2"
             ansible-version: "6.1.0"
             ansible-lint: "6.3.0"
@@ -86,6 +86,7 @@ jobs:
           pull: true
           push: ${{ github.ref == 'refs/heads/main' }}
           build-args: |
+            IMAGE=${{ matrix.image }}
             ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
             ANSIBLE_VERSION=${{ matrix.ansible-version }}
             ANSIBLE_LINT=${{ matrix.ansible-lint }}
