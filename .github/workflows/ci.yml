@@ -70,10 +70,10 @@ jobs:
         uses: docker/metadata-action@v4.0.1
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          labels: |
-            org.opencontainers.image.version=${{ matrix.ansible-core-version }}
           tags: |
             type=raw,enable=true,value=${{ matrix.version }}-${{ matrix.image }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.ansible-core-version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.0
@@ -96,7 +96,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.version }}-${{ matrix.image }}
+          image: ${{ steps.meta.outputs.tags }}
           args: --file=Dockerfile
 
       - name: Upload result to GitHub Code Scanning
