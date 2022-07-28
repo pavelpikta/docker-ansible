@@ -71,7 +71,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
-            org.opencontainers.image.version=${{ matrix.version }}
+            org.opencontainers.image.version=${{ matrix.ansible-core-version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.0
