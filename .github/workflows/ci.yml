@@ -73,6 +73,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,enable=true,value=${{ matrix.version }}-${{ matrix.image }}
+            type=raw,enable=true,value=${{ matrix.ansible-core-version }}-${{ matrix.image }}
           labels: |
             org.opencontainers.image.version=${{ matrix.ansible-core-version }}
 
