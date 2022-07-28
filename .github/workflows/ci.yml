@@ -26,7 +26,7 @@ jobs:
           failure-threshold: error
 
   build:
-    name: "ansible-core:${{ matrix.version }}-${{ matrix.image }}"
+    name: "ansible-core:${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}"
     runs-on: ubuntu-latest
     needs: ["lint"]
     permissions:
@@ -36,22 +36,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [alpine-3.16, alpine-3.15]
+        image: [alpine]
+        image_version: [3.13, 3.14, 3.15, 3.16]
+        ansible-core: [2.11, 2.12, 2.13]
         include:
-          - version: "2.13"
+          - ansible-core: "2.11"
+            ansible-core-version: "2.11.12"
+            ansible-version: "4.10.0"
+            ansible-lint: "5.4.0"
+          - ansible-core: "2.12"
+            ansible-core-version: "2.12.7"
+            ansible-version: "5.10.0"
+            ansible-lint: "6.3.0"
+          - ansible-core: "2.13"
             ansible-core-version: "2.13.2"
             ansible-version: "6.1.0"
             ansible-lint: "6.3.0"
-          # - version: "2.12"
-          #   image: "alpine-3.16"
-          #   ansible-core-version: "2.12.7"
-          #   ansible-version: "5.10.0"
-          #   ansible-lint: "6.3.0"
-          # - version: "2.11"
-          #   image: "alpine-3.16"
-          #   ansible-core-version: "2.11.12"
-          #   ansible-version: "4.10.0"
-          #   ansible-lint: "5.4.0"
 
     steps:
       - name: Checkout repository
@@ -72,8 +72,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,enable=true,value=${{ matrix.version }}-${{ matrix.image }}
-            type=raw,enable=true,value=${{ matrix.ansible-core-version }}-${{ matrix.image }}
+            type=raw,enable=true,value=${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}
+            type=raw,enable=true,value=${{ matrix.ansible-core-version }}-${{ matrix.image }}-${{ matrix.image_version }}
           labels: |
             org.opencontainers.image.version=${{ matrix.ansible-core-version }}
 
@@ -86,7 +86,7 @@ jobs:
           pull: true
           push: ${{ github.ref == 'refs/heads/main' }}
           build-args: |
-            IMAGE=${{ matrix.image }}
+            IMAGE_VERSION=${{ matrix.image_version }}
             ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
             ANSIBLE_VERSION=${{ matrix.ansible-version }}
             ANSIBLE_LINT=${{ matrix.ansible-lint }}
