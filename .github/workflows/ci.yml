@@ -72,6 +72,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
             org.opencontainers.image.version=${{ matrix.ansible-core-version }}
+          tags: |
+            type=raw,enable=true,value=${{ matrix.version }}-${{ matrix.image }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.0
@@ -85,7 +87,7 @@ jobs:
             ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
             ANSIBLE_VERSION=${{ matrix.ansible-version }}
             ANSIBLE_LINT=${{ matrix.ansible-lint }}
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.version }}-${{ matrix.image }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Run Snyk to check Docker image for vulnerabilities
