@@ -83,7 +83,7 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64
           pull: true
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           build-args: |
             ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
             ANSIBLE_VERSION=${{ matrix.ansible-version }}
