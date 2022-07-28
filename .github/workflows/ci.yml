@@ -70,6 +70,8 @@ jobs:
         uses: docker/metadata-action@v4.0.1
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.0
