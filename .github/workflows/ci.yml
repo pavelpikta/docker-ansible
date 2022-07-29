@@ -113,3 +113,85 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
+
+  build-ubuntu:
+    name: "ansible-core:${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}"
+    runs-on: ubuntu-latest
+    needs: ["lint"]
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu]
+        image_version: [20.04, 22.04]
+        ansible-core: [2.11, 2.12, 2.13]
+        include:
+          - ansible-core: "2.11"
+            ansible-core-version: "2.11.12"
+            ansible-version: "4.10.0"
+            ansible-lint: "5.4.0"
+          - ansible-core: "2.12"
+            ansible-core-version: "2.12.7"
+            ansible-version: "5.10.0"
+            ansible-lint: "6.4.0"
+          - ansible-core: "2.13"
+            ansible-core-version: "2.13.2"
+            ansible-version: "6.1.0"
+            ansible-lint: "6.4.0"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,enable=true,value=${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}
+            type=raw,enable=true,value=${{ matrix.ansible-core-version }}-${{ matrix.image }}-${{ matrix.image_version }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.ansible-core-version }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3.1.0
+        with:
+          context: ./
+          file: ${{ matrix.image }}/Dockerfile
+          platforms: linux/amd64
+          pull: true
+          push: ${{ github.ref == 'refs/heads/main' }}
+          build-args: |
+            IMAGE_VERSION=${{ matrix.image_version }}
+            ANSIBLE_CORE_VERSION=${{ matrix.ansible-core-version }}
+            ANSIBLE_VERSION=${{ matrix.ansible-version }}
+            ANSIBLE_LINT=${{ matrix.ansible-lint }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ steps.meta.outputs.tags }}
+          args: --file=${{ matrix.image }}/Dockerfile
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
