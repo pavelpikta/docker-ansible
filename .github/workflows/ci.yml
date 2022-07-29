@@ -87,8 +87,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.0
         with:
-          context: ${{ matrix.image }}
-          file: Dockerfile
+          context: ./
+          file: ${{ matrix.image }}/Dockerfile
           platforms: linux/amd64
           pull: true
           push: ${{ github.ref == 'refs/heads/main' }}
