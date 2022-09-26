@@ -99,7 +99,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ${{ steps.meta.outputs.tags }}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}
           args: --file=Dockerfile --severity-threshold=high
           sarif: true
 
