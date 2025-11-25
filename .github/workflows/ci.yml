@@ -32,7 +32,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -96,18 +95,3 @@ jobs:
             ANSIBLE_LINT=${{ matrix.ansible-lint }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Run Snyk to check Docker image for vulnerabilities
-        continue-on-error: true
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.ansible-core }}-${{ matrix.image }}-${{ matrix.image_version }}
-          args: --file=Dockerfile --severity-threshold=high
-          sarif: true
-
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: snyk.sarif
